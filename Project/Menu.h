@@ -241,11 +241,10 @@ const static char* sSDKsample = "[kirsch]\0";
 //
 //}
 
-const static char* DefaultDictionary = "pass.txt\0";
-
 class Project
 {
 	std::unordered_map<std::string, std::string> _dictionary;
+	std::string _dictionaryLocation;
 
 	void pause();
 
@@ -258,9 +257,18 @@ class Project
 	bool Loadhash(std::string& hash);
 	void SetMethod(std::string& method, bool& dAttack);
 
-	bool LoadDictionary(std::string& dictionary);
+	bool LoadDictionary();
 
 	void MessageSetting();
+
+	void DictionarySetting();
+
+	void PrintAllDictionary();
+	void AddNewMD5MessageHash();
+	void RemoveMD5MessageHash();
+	void ClearAllDictionary();
+	void UpdateFileData();
+
 public:
 	void MainMenu();
 };

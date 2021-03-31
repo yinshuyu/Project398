@@ -4,14 +4,14 @@
 
 void Project::MainMenu()
 {
-	bool exit = false;
-	while (!exit)
+	while (1)
 	{
 		ClearScreen();
 		std::cout << "CS398 Project - MD5 Hash Cracking Tool \n";
 		std::cout << std::endl;
 		std::cout << "1) Generate MD5 Hash" << std::endl;
 		std::cout << "2) Crack MD5 Hash " << std::endl;
+		std::cout << std::endl;
 		std::cout << "3) Exit" << std::endl;
 		std::cout << std::endl;
 		std::cout << "Choose your operation:" << std::endl;
@@ -30,8 +30,8 @@ void Project::MainMenu()
 				continue;
 			case '3':
 				std::cout << "Exiting Program...." << std::endl;
-				exit = true;
-				break;
+				pause();
+				return;
 			default:
 				std::cout << "Invalid Choice...." << std::endl;
 			}
@@ -82,36 +82,19 @@ void Project::MD5_Generating()
 void Project::CrackMenu()
 {
 	bool dLoad = false, dAttack = false;
-	std::string dDictionary = "";
 
 	std::string cMethod = "1";
 
 	bool hLoad = false;
 	std::string hHash = "0";
 
-
-	bool exit = false;
-	while (!exit)
+	while (1)
 	{
 		ClearScreen();
 		std::cout << "Operation - Crack MD5 Hash \n";
 		std::cout << std::endl;
-		std::cout << "1) Set Cracking method - Currently: [";
-		{
-			switch (cMethod.at(0)) {
-			case '1':
-				std::cout << "Brute Force Attack]" << std::endl;
-				break;
-			case '2':
-				std::cout << "Dictionary Attack]" << std::endl;
-				break;
-			case '3':
-				std::cout << "Brute Force + Dictionary attack]" << std::endl;
-				break;
-			default:
-				break;
-			}
-		}
+		std::cout << "1) Crack Hash" << std::endl;
+		std::cout << std::endl;
 		std::cout << "2) Load Hash to be Cracked - Currently: [";
 		{
 			if (hLoad)
@@ -128,14 +111,33 @@ void Project::CrackMenu()
 			if (dLoad)
 			{
 				std::cout << "Loaded]" << std::endl;
-				std::cout << "-> Dictionary Loaded: [" << dDictionary << "]" << std::endl;
+				std::cout << "-> Dictionary Loaded: [" << _dictionaryLocation << "]" << std::endl;
 			}
 			else
 				std::cout << "Unloaded]" << std::endl;
 		}
-		std::cout << "4) Crack Hash" << std::endl;
+		std::cout << std::endl;
+		std::cout << "4) Set Cracking method - Currently: [";
+		{
+			switch (cMethod.at(0)) {
+			case '1':
+				std::cout << "Brute Force Attack]" << std::endl;
+				break;
+			case '2':
+				std::cout << "Dictionary Attack]" << std::endl;
+				break;
+			case '3':
+				std::cout << "Brute Force + Dictionary attack]" << std::endl;
+				break;
+			default:
+				break;
+			}
+		}
 		std::cout << "5) Message Setting" << std::endl;
-		std::cout << "6) Back to Menu" << std::endl;
+		if(dAttack && dLoad)
+			std::cout << "6) Dictionary Setting" << std::endl;
+		std::cout << std::endl;
+		std::cout << "7) Back to Menu" << std::endl;
 		std::cout << std::endl;
 		std::cout << "Choose your operation:" << std::endl;
 
@@ -145,13 +147,13 @@ void Project::CrackMenu()
 
 		{
 			switch (choice.at(0)) {
-			case '1':
+			case '4':
 				SetMethod(cMethod, dAttack);
 				break;
 			case '2':
 				hLoad = Loadhash(hHash);
 				break;
-			case '4':
+			case '1':
 				if (hLoad )
 				{
 					if(dAttack)
@@ -167,17 +169,23 @@ void Project::CrackMenu()
 				else
 					std::cout << "Your MD5 Hash is not loaded!" << std::endl;
 				break;
+			case '7':
+				std::cout << "Returning to Menu...." << std::endl;
+				pause();
+				return;
 			case '5':
 				MessageSetting();
 				break;
 			case '6':
-				std::cout << "Returning to Menu...." << std::endl;
-				exit = true;
-				break;
+				if (dAttack && dLoad)
+				{
+					DictionarySetting();
+					break;
+				}
 			case '3':
 				if (dAttack)
 				{
-					dLoad = LoadDictionary(dDictionary);
+					dLoad = LoadDictionary();
 					break;
 				}
 			default:
@@ -324,12 +332,12 @@ void Project::SetMethod(std::string& method, bool& dAttack)
 	}
 }
 
-bool Project::LoadDictionary(std::string& dictionary)
+bool Project::LoadDictionary()
 {
 	ClearScreen();
 	std::cout << "Operation - Link Dictionary \n";
 	std::cout << std::endl;
-	std::cout << "Enter Dictionary Location (E.g. Text.txt):" << std::endl;
+	std::cout << "Enter Dictionary Location (E.g. pass.txt):" << std::endl;
 
 	std::string filename = "";
 	std::cin >> filename;
@@ -344,7 +352,7 @@ bool Project::LoadDictionary(std::string& dictionary)
 	}
 	else {
 
-		dictionary = filename;
+		_dictionaryLocation = filename;
 
 		_dictionary.clear();
 		std::cout << "Extracting Dictionary Data..." << std::endl;
@@ -363,6 +371,8 @@ bool Project::LoadDictionary(std::string& dictionary)
 			}
 		};
 
+		f.close();
+
 		std::cout << std::endl;
 		std::cout << "Extraction Completed! " << std::endl; 
 		std::cout << _dictionary.size() << " sets of MD5 Hash Message loaded in!" << std::endl;
@@ -379,5 +389,166 @@ void Project::MessageSetting()
 
 	std::cout << "Not done yet\n Need to set the Brute Force message search Length\n And the type of character it has in the message" << std::endl;
 
+}
+
+void Project::DictionarySetting()
+{
+	while (1)
+	{
+		ClearScreen();
+		std::cout << "Operation - Dictionary Setting \n";
+		std::cout << std::endl;
+
+		std::cout << "1) Show All Message MD5 Hash in Dictionary" << std::endl;
+		std::cout << "2) Add New Message MD5 Hash into Dictionary" << std::endl;
+		std::cout << "3) Remove Exsiting Message MD5 Hash from Dictionary" << std::endl;
+		std::cout << "4) Clean All Dictionary" << std::endl;
+		std::cout << "5) Update FileData" << std::endl;
+		std::cout << std::endl;
+		std::cout << "6) Return to Crack MD5 Hash Menu" << std::endl;
+		std::cout << std::endl;
+		std::cout << "Choose your operation:" << std::endl;
+
+		std::string choice = "";
+		std::cin >> choice;
+		std::cout << std::endl;
+
+		{
+			switch (choice.at(0)) {
+			case '1':
+				PrintAllDictionary();
+				break;
+			case '2':
+				AddNewMD5MessageHash();
+				break;
+			case '3':
+				RemoveMD5MessageHash();
+				break;
+			case '4':
+				ClearAllDictionary();
+				break;
+			case '5':
+				UpdateFileData();
+				break;
+			case '6':
+				std::cout << "Returning to Crack MD5 Hash Menu...." << std::endl;
+				return;
+			default:
+				std::cout << "Invalid Choice...." << std::endl;
+			}
+
+			pause();
+		}
+	}
+}
+
+void Project::PrintAllDictionary()
+{
+	ClearScreen();
+	std::cout << "Operation - Show All Message MD5 Hash in Dictionary \n";
+	std::cout << std::endl;
+
+	for (const auto& m : _dictionary) {
+		std::cout << "Hash: ["<< m.first << "] ==> Message: [" << m.second << "]" << std::endl;
+	}
+}
+
+void Project::AddNewMD5MessageHash()
+{
+	ClearScreen();
+	std::cout << "Operation - Add New Message MD5 Hash into Dictionary \n";
+	std::cout << std::endl;
+	std::cout << "Enter your message to be MD5 Hash into Dictionary: " << std::endl;
+
+	std::string message = "";
+	std::cin >> message;
+
+	char str[MD5_STRING_SIZE];
+	{
+		md5::md5_t md5;
+		md5.process(message.c_str(), message.length());
+		md5.finish();
+		md5.get_string(str);
+	}
+	std::cout << std::endl;
+
+	std::string hash{ str };
+
+	std::ofstream ansf;
+	ansf.open(_dictionaryLocation, std::ios::app);
+	ansf << hash<<";"<< message << std::endl; //Write the password at the eof
+
+
+	_dictionary.insert({ hash , message });
+
+	std::cout << "Hash: [" << hash << "] ==> Message: [" << message << "]" << std::endl;
+	std::cout << "Added into Dictionary" << std::endl;
+
+}
+
+void Project::RemoveMD5MessageHash()
+{
+	ClearScreen();
+	std::cout << "Operation - Remove Exsiting Message MD5 Hash from Dictionary \n";
+	std::cout << std::endl;
+	std::cout << "Enter your message that MD5 Hash will be remove from Dictionary: " << std::endl;
+
+	std::string message = "";
+	std::cin >> message;
+
+	char str[MD5_STRING_SIZE];
+	{
+		md5::md5_t md5;
+		md5.process(message.c_str(), message.length());
+		md5.finish();
+		md5.get_string(str);
+	}
+	std::cout << std::endl;
+
+	std::string hash{ str };
+
+	std::unordered_map<std::string, std::string>::iterator it;
+	it = _dictionary.find(hash);
+	if (it == _dictionary.end())
+	{
+		std::cout << "Message dont Exist in Dictionary!" << std::endl;
+		return;
+	}
+	else
+	{
+		_dictionary.erase(it);
+
+		std::cout << "Hash: [" << hash << "] ==> Message: [" << message << "]" << std::endl;
+		std::cout << "Removed from Dictionary" << std::endl;
+	}
+}
+
+void Project::ClearAllDictionary()
+{
+	ClearScreen();
+	std::cout << "Operation - Clean All Dictionary \n";
+	std::cout << std::endl;
+
+	_dictionary.clear();
+
+	std::cout << "Dictionary Size: " << _dictionary.size();
+}
+
+void Project::UpdateFileData()
+{
+	ClearScreen();
+	std::cout << "Operation - Update FileData \n";
+	std::cout << std::endl;
+
+	std::fstream ofs;
+	ofs.open(_dictionaryLocation, std::ios::out | std::ios::trunc);
+
+	for (const auto& m : _dictionary) {
+		ofs << m.first << ";" << m.second << std::endl;
+	}
+
+	ofs.close();
+
+	std::cout << "Update Done!" << std::endl;
 }
 
