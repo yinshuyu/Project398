@@ -2,8 +2,17 @@
 #include <cstdint>
 #include "md5.h"
 
-#define START   0x61  // a
-#define END     0x7A  // z
+#define START_0   0x30  // 0
+#define END_9     0x39  // 9
+
+#define START_A   0x41  // A
+#define END_Z     0x5A  // Z
+
+#define START_a   0x61  // a
+#define END_z     0x7A  // z
+
+#define START   0x21  // !
+#define END     0x7E  // ~
 
 typedef unsigned char byte_t;
 
@@ -47,18 +56,18 @@ int brute_force_fixed_length(const char* hash, std::string& result, char* test, 
 	return 0;
 }
 
-int brute_force(const char* hash, std::string& result, int maxlen) {
+bool brute_force(const char* hash, std::string& result, unsigned minlen, unsigned maxlen) {
 
 	char* str = new char[maxlen+1];
 
-	for (int i = 0; i < maxlen+1; i++)
+	for (unsigned i = 0; i < maxlen+1; i++)
 		str[i] = '\0';
 
-	for (int i = 0; i < maxlen; i++)
-		if (brute_force_fixed_length(hash, result, str, 0, i)) 
-			return 1;
+	for (unsigned i = 0; i < maxlen - minlen; i++)
+		if (brute_force_fixed_length(hash, result, str, 0, minlen+i))
+			return true;
 
 	delete[] str;
 
-	return 0;
+	return false;
 }

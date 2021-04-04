@@ -73,7 +73,11 @@ void md5::sig_from_string(void* signature_, const char* str_)
 * Example
 
 The following program will print one line to stdout:
+abc
 900150983cd24fb0d6963f7d28e17f72
+
+abc123
+e99a18c428cb38d5f260853678922e03
 
 #include <string.h>
 #include <cstdlib>

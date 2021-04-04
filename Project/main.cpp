@@ -2,7 +2,7 @@
 
 int main(int argc, char **argv)
 {
-	Project MD5_Tool;
+	Project MD5_Tool(argc, argv);
 
 	MD5_Tool.MainMenu();
 

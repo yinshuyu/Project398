@@ -12,6 +12,8 @@
     <ClInclude Include="clearscreenw.h" />
     <ClInclude Include="md5.h" />
     <ClInclude Include="md5_loc.h" />
+    <ClInclude Include="DictionaryAttack.h" />
+    <ClInclude Include="md5_crack.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
