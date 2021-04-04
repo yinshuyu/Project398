@@ -309,6 +309,13 @@ void Project::MessageSetting()
 		std::cout << std::endl;
 		std::cout << "Enter Message Minimum Length :" << std::endl;
 		std::cin >> length;
+
+		if (length < 1)
+		{
+			std::cout << "Error: Minimum Length cannot be less than 1!" << std::endl;
+			continue;
+		}
+
 		_messageLength.first = length;
 
 		std::cout << std::endl;

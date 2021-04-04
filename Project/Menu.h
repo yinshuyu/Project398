@@ -35,7 +35,7 @@ public:
 		_argv(argv),
 		_dictionaryLocation(),
 		_dictionarySize(0),
-		_messageLength({ 0,3 })
+		_messageLength({ 1,3 })
 	{}
 
 	~Project() {}

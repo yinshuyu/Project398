@@ -11,7 +11,7 @@
 #define START_a   0x61  // a
 #define END_z     0x7A  // z
 
-#define START   0x21  // !
+#define START   0x20  // space
 #define END     0x7E  // ~
 
 typedef unsigned char byte_t;
@@ -63,8 +63,8 @@ bool brute_force(const char* hash, std::string& result, unsigned minlen, unsigne
 	for (unsigned i = 0; i < maxlen+1; i++)
 		str[i] = '\0';
 
-	for (unsigned i = 0; i < maxlen - minlen; i++)
-		if (brute_force_fixed_length(hash, result, str, 0, minlen+i))
+	for (unsigned i = 0; i < maxlen - minlen + 1; i++)
+		if (brute_force_fixed_length(hash, result, str, 0, minlen-1+i))
 			return true;
 
 	delete[] str;

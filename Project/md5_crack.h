@@ -15,7 +15,7 @@
 #include <vector>
 #include <limits>
 
-#define DEVPROP
+//#define DEVPROP
 
 void BruteForceAttack(const char* hash, unsigned msgMinLgth, unsigned msgMaxLgth)
 {
