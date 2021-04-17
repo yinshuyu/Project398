@@ -112,6 +112,8 @@ void Project::CrackMenu()
 			{
 				std::cout << "Loaded]" << std::endl;
 				std::cout << "-> Dictionary Loaded: [" << _dictionaryLocation << "]" << std::endl;
+				std::cout << "-> " << _dictionarySize << " Messages in Dictionary file!" << std::endl;
+				std::cout << "-> Maximum Message length: " << _dictionaryMaxMsgLength << std::endl;
 			}
 			else
 				std::cout << "Unloaded]" << std::endl;
@@ -133,8 +135,11 @@ void Project::CrackMenu()
 				break;
 			}
 		}
-		std::cout << "5) Set Message Length - Currently: [" << _messageLength.first;
-		std::cout << " ~ " << _messageLength.second << "]" << std::endl;
+		if (cMethod.at(0) != '2')
+		{
+			std::cout << "5) Set Brute Force Message Length - Currently: [" << _messageLength.first;
+			std::cout << " ~ " << _messageLength.second << "]" << std::endl;
+		}
 		std::cout << std::endl;
 		std::cout << "6) Back to Menu" << std::endl;
 		std::cout << std::endl;
@@ -147,13 +152,19 @@ void Project::CrackMenu()
 		{
 			switch (choice.at(0)) {
 			case '4':
-				SetMethod(cMethod, dAttack);
+				{
+					SetMethod(cMethod, dAttack);
+					dLoad = false;
+					hLoad = false;
+					_messageLength.first = 1;
+					_messageLength.second = 3;
+				}
 				break;
 			case '2':
 				hLoad = Loadhash(hHash);
 				break;
 			case '1':
-				if (hLoad )
+				if (hLoad)
 				{
 					if(dAttack)
 					{ 
@@ -173,7 +184,10 @@ void Project::CrackMenu()
 				pause();
 				return;
 			case '5':
-				MessageSetting();
+				if (cMethod.at(0) != '2') 
+					MessageSetting();
+				else
+					std::cout << "Invalid Choice...." << std::endl;
 				break;
 			case '3':
 				if (dAttack)
@@ -200,10 +214,10 @@ void Project::MD5_Cracking(std::string hash, std::string cMethod)
 		BruteForceAttack(hash.c_str(), _messageLength.first, _messageLength.second);
 		break;
 	case '2':
-		DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _messageLength.second);
+		DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength);
 		break;
 	case '3':
-		DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _messageLength.second);
+		DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength);
 		BruteForceAttack(hash.c_str(), _messageLength.first, _messageLength.second);
 		break;
 	default:
@@ -284,7 +298,7 @@ bool Project::LoadDictionary()
 	std::cin >> filename;
 	std::cout << std::endl;
 
-	if (!LoadFile(filename, _dictionarySize))
+	if (!LoadFile(filename, _dictionarySize, _dictionaryMaxMsgLength))
 	{
 		std::cout << "Dictionary file does not exist!" << std::endl;
 		return false;
@@ -294,6 +308,7 @@ bool Project::LoadDictionary()
 
 	std::cout << "Dictionary file Connection is linked!" << std::endl;
 	std::cout << _dictionarySize << " Messages in Dictionary file!" << std::endl;
+	std::cout  << "Maximum Message length: " << _dictionaryMaxMsgLength << std::endl;
 
 	return true;
 }
@@ -301,7 +316,7 @@ bool Project::LoadDictionary()
 void Project::MessageSetting()
 {
 	ClearScreen();
-	std::cout << "Operation - Set Message Length \n";
+	std::cout << "Operation - Set Brute Force Message Length \n";
 	unsigned length = 0;
 
 	while (1)

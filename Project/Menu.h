@@ -26,6 +26,7 @@ class Project
 	char** _argv;
 	std::string _dictionaryLocation;
 	unsigned _dictionarySize;
+	unsigned _dictionaryMaxMsgLength;
 	std::pair<unsigned, unsigned> _messageLength;
 
 public:

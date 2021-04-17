@@ -4,7 +4,7 @@
 #include <string>
 #include "md5.h"
 
-bool LoadFile(std::string filename, unsigned& size)
+bool LoadFile(std::string filename, unsigned& size, unsigned& length)
 {
 	std::ifstream f;
 	f.open(filename);
@@ -13,10 +13,16 @@ bool LoadFile(std::string filename, unsigned& size)
 
 	std::string line;
 	unsigned i;
+	unsigned maxLength;
 
-	for (i = 0; std::getline(f, line); ++i);
+	for (i = 0, maxLength = 0; std::getline(f, line); ++i)
+	{
+		if (maxLength < line.length())
+			maxLength = line.length();
+	}
 
 	size = i;
+	length = maxLength;
 
 	return true;
 }
