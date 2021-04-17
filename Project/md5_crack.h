@@ -5,7 +5,6 @@
 // CUDA Runtime
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-
 // Utility and system includes
 #include <helper_cuda.h>
 #include <helper_functions.h>  // helper for shared that are common to CUDA Samples
@@ -15,13 +14,17 @@
 #include <vector>
 #include <limits>
 
+
+#include "GPUDictionaryAttack.h"
+
 //#define DEVPROP
 
-//Function to 
 void BruteForceAttack(const char* hash, unsigned msgMinLgth, unsigned msgMaxLgth)
 {
 	std::string message = "";
 
+
+	//if bruteforce return true - found password
 	if (brute_force(hash, message, msgMinLgth, msgMaxLgth))
 	{
 		std::cout << "Hash (" << hash;
@@ -37,6 +40,8 @@ void BruteForceAttack(const char* hash, unsigned msgMinLgth, unsigned msgMaxLgth
 void DictionaryAttack(int argc, char** argv, const char* hash, std::string filename, unsigned fileSize, unsigned msgMaxLgth)
 {
 	StopWatchInterface *hTimer = NULL;
+	sdkCreateTimer(&hTimer); //Timer Creation
+
 	bool PassFailFlag = false;
 	cudaDeviceProp deviceProp;
 	deviceProp.major = 0;
@@ -208,33 +213,131 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 		std::cout << "Failed to Extract Dictionary file passwords!" << std::endl;
 		return;
 	}
+	else
+	{
+		std::cout << "Dictionary file passwords has been extracted.\n" << std::endl;
 
+	}
+
+
+
+	
+	std::cout << "CPU dictionary attack\n" << std::endl;
 
 	std::string message = "";
 
-	//sequential dictionary attack
 	{
-		//Cracking the User MD5 hash string using the Dictionary attack method
-		PassFailFlag = ScanDictionary(hash, message, dictionaryList, fileSize, msgMaxLgth);
-		std::cout << std::endl;
+
+		sdkResetTimer(&hTimer);
+		sdkStartTimer(&hTimer);
+
+		//sequential dictionary attack
+		{
+			//Cracking the User MD5 hash string using the Dictionary attack method
+			PassFailFlag = ScanDictionary(hash, message, dictionaryList,
+				fileSize, msgMaxLgth);
+		}
+
+		sdkStopTimer(&hTimer);
+		//Log GPU execution time 
+		{
+			printf("...reading back GPU results\n");
+			float AvgSecs = 1.0e-3 * (double)sdkGetTimerValue(&hTimer); //sdkgettimer returns millisecs
+			printf("CPU_ScanDictionary() time (average): %.5f sec, %.4f MB/sec \n\n",
+				AvgSecs, ((double)(fileSize * msgMaxLgth * sizeof(char)) * 1.0e-6) / AvgSecs);
+		}
+
+		if (PassFailFlag)  //whether the message is found for the sequential dictionary attack
+		{
+			std::cout << "Hash (" << hash;
+			std::cout << ") Cracked: Message (" << message << ")!" << std::endl;
+		}
+		else
+		{
+			std::cout << "Failed to crack Hash (" << hash;
+			std::cout << ")!" << std::endl;
+		}
 	}
 
-
-	if (PassFailFlag)  //whether the message is found for the sequential dictionary attack
-	{
-		std::cout << "Hash (" << hash;
-		std::cout << ") Cracked: Message (" << message << ")!" << std::endl;
-	}
-	else
-	{
-		std::cout << "Failed to crack Hash (" << hash;
-		std::cout << ")!" << std::endl;
-	}
 
 
 	//cuda dictionary attack
+	std::cout << "\nGPU dictionary attack\n" << std::endl;
 
 	//cuda take in the dictionary list
 	//every single thread hash a single password from the dictionary
 	//after hashing, compares the user input hash with the dictionary hash
+
+	char* result = new char[msgMaxLgth];
+	memset(result, 0, msgMaxLgth);
+
+	{
+		sdkResetTimer(&hTimer);
+		sdkStartTimer(&hTimer);
+
+		//transfer data from CPU to GPU
+		char* device_result;
+		checkCudaErrors(cudaMalloc((void**)&device_result,
+			msgMaxLgth * sizeof(char)));
+		checkCudaErrors(cudaMemcpy(device_result, result,
+			msgMaxLgth * sizeof(char),
+			cudaMemcpyHostToDevice));
+
+
+		char* device_dictionary_list;
+		checkCudaErrors(cudaMalloc((void**)&device_dictionary_list,
+			fileSize * msgMaxLgth * sizeof(char)));
+		checkCudaErrors(cudaMemcpy(device_dictionary_list, dictionaryList,
+			fileSize * msgMaxLgth * sizeof(char),
+			cudaMemcpyHostToDevice));
+
+		char* device_hash;
+		checkCudaErrors(cudaMalloc((void**)&device_hash,
+			MD5_STRING_SIZE * sizeof(char)));
+		checkCudaErrors(cudaMemcpy(device_hash, hash,
+			MD5_STRING_SIZE * sizeof(char),
+			cudaMemcpyHostToDevice));
+
+
+		{
+			GPUScanDictionary(device_hash, device_result, device_dictionary_list,
+				fileSize, msgMaxLgth, 512);
+		}
+		//transfer result matrix from GPU to CPU
+		checkCudaErrors(cudaMemcpy(result, device_result,
+			msgMaxLgth * sizeof(char), cudaMemcpyDeviceToHost));
+
+
+		sdkStopTimer(&hTimer);
+		//Log GPU execution time 
+		{
+			printf("...reading back GPU results\n");
+			float AvgSecs = 1.0e-3 * (double)sdkGetTimerValue(&hTimer); //sdkgettimer returns millisecs
+			printf("GPUScanDictionary() time (average): %.5f sec, %.4f MB/sec \n\n",
+				AvgSecs, ((double)(fileSize * msgMaxLgth * sizeof(char)) * 1.0e-6) / AvgSecs);
+		}
+
+		if (result)
+		{
+			std::cout << "Hash (" << hash;
+			std::cout << ") Cracked: Message (" << result << ")!" << std::endl;
+		}
+		else
+		{
+			std::cout << "Failed to crack Hash (" << hash;
+			std::cout << ")!" << std::endl;
+		}
+	}
+
+
+
+	if (!message.compare(result))
+	{
+		std::cout << "GPU and CPU dictionary attack match." << std::endl;
+
+	}
+	else
+	{
+		std::cout << "GPU and CPU dictionary attack failed to match!" << std::endl;
+	}
 }

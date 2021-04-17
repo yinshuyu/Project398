@@ -15,11 +15,13 @@
     <ClCompile Include="md5.cpp" />
     <ClCompile Include="md5_t.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="ThreadDictionaryAttack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BruteForceAttack.h" />
     <ClInclude Include="clearscreenw.h" />
     <ClInclude Include="DictionaryAttack.h" />
+    <ClInclude Include="GPUDictionaryAttack.h" />
     <ClInclude Include="md5.h" />
     <ClInclude Include="md5_crack.h" />
     <ClInclude Include="md5_loc.h" />
@@ -70,6 +72,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\ProgramData\NVIDIA Corporation\CUDA Samples\v11.0\common\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -78,6 +81,7 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <Include>C:\ProgramData\NVIDIA Corporation\CUDA Samples\v11.0\common\inc;</Include>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

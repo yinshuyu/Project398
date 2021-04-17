@@ -82,7 +82,8 @@ bool LoadDictionary(std::string filename, char*& list, unsigned msgMaxLgth)
 //Cracking the User MD5 hash string using the Dictionary attack method
 
 //hash - user input of a MD5 hash string
-bool ScanDictionary(const char* hash, std::string& result, char*& list, unsigned listSize, unsigned msgMaxLgth)
+bool ScanDictionary(const char* hash, std::string& result, 
+	char*& list, unsigned listSize, unsigned msgMaxLgth)
 {
 	static char chash[MD5_STRING_SIZE];
 

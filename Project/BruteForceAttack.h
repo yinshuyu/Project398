@@ -11,6 +11,7 @@
 #define START_a   0x61  // a
 #define END_z     0x7A  // z
 
+//only this is used
 #define START   0x20  // space
 #define END     0x7E  // ~
 
@@ -20,7 +21,14 @@ int compare(const uint32_t a[], const uint32_t b[]) {
 	return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3];
 }
 
-int brute_force_fixed_length(const char* hash, std::string& result, char* test, int p, int len) {
+
+//recursive function
+int brute_force_fixed_length(const char* hash, std::string& result, 
+	char* test, //ascii value that is being tested in the function 
+	int p,	 //index of the test array 
+	int len  //find all the permuations of length len
+	) 
+	{
 
 	static char chash[MD5_STRING_SIZE];
 
@@ -33,10 +41,11 @@ int brute_force_fixed_length(const char* hash, std::string& result, char* test, 
 				return 1;
 		}
 	}
-	else {
+	else { //reached the desired length of permutation
 		for (c = START; c <= END; ++c) {
 			test[p] = c;
 
+			//get hash of the string
 			md5::md5_t md5;
 			md5.process(test, len + 1);
 			md5.finish();
@@ -45,6 +54,7 @@ int brute_force_fixed_length(const char* hash, std::string& result, char* test, 
 
 			std::string s(chash);
 
+			//compare user input hash and permutation hash
 			if (!s.compare(hash))
 			{
 				result = test;
@@ -63,6 +73,9 @@ bool brute_force(const char* hash, std::string& result, unsigned minlen, unsigne
 	for (unsigned i = 0; i < maxlen+1; i++)
 		str[i] = '\0';
 
+	//eg.minlen = 3, maxlen = 6 
+	//3 to 6 - 4 characters
+	//find the permutations between minlen to maxlen
 	for (unsigned i = 0; i < maxlen - minlen + 1; i++)
 		if (brute_force_fixed_length(hash, result, str, 0, minlen-1+i))
 			return true;
