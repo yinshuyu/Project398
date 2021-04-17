@@ -24,9 +24,9 @@ class Project
 
 	int _argc;
 	char** _argv;
-	std::string _dictionaryLocation;
-	unsigned _dictionarySize;
-	std::pair<unsigned, unsigned> _messageLength;
+	std::string _dictionaryLocation; //dictionary file name
+	unsigned _dictionarySize; //
+	std::pair<unsigned, unsigned> _messageLength; //minimum length ~ maximum length
 
 public:
 

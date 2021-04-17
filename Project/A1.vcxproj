@@ -28,6 +28,9 @@
   <ItemGroup>
     <None Include="README" />
   </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="GPUDictionaryAttack.cu" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7FE5AEBD-AADD-440E-8AE4-89035B6FB36F}</ProjectGuid>
     <RootNamespace>A1</RootNamespace>
