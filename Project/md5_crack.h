@@ -17,6 +17,7 @@
 
 //#define DEVPROP
 
+//Function to 
 void BruteForceAttack(const char* hash, unsigned msgMinLgth, unsigned msgMaxLgth)
 {
 	std::string message = "";
@@ -197,21 +198,29 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 
 	char* dictionaryList = nullptr;
 
+	//allocate memory for the entire dictionary list
 	LoadDictionaryMemory(dictionaryList, fileSize, msgMaxLgth);
 
+	//load in all passwords of the dictionary 
+	//into a 1D array - list - dynamically allocated with the msgMaxLength for every password
 	if (!LoadDictionary(filename, dictionaryList, msgMaxLgth))
 	{
 		std::cout << "Failed to Extract Dictionary file passwords!" << std::endl;
 		return;
 	}
 
+
 	std::string message = "";
 
-	PassFailFlag = ScanDictionary(hash, message, dictionaryList, fileSize, msgMaxLgth);
+	//sequential dictionary attack
+	{
+		//Cracking the User MD5 hash string using the Dictionary attack method
+		PassFailFlag = ScanDictionary(hash, message, dictionaryList, fileSize, msgMaxLgth);
+		std::cout << std::endl;
+	}
 
-	std::cout << std::endl;
 
-	if (PassFailFlag)
+	if (PassFailFlag)  //whether the message is found for the sequential dictionary attack
 	{
 		std::cout << "Hash (" << hash;
 		std::cout << ") Cracked: Message (" << message << ")!" << std::endl;
@@ -221,4 +230,11 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 		std::cout << "Failed to crack Hash (" << hash;
 		std::cout << ")!" << std::endl;
 	}
+
+
+	//cuda dictionary attack
+
+	//cuda take in the dictionary list
+	//every single thread hash a single password from the dictionary
+	//after hashing, compares the user input hash with the dictionary hash
 }

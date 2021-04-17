@@ -2,6 +2,8 @@
 #include "md5_crack.h"
 #include "clearscreenw.h"
 
+
+//while loop - start up interface
 void Project::MainMenu()
 {
 	while (1)
@@ -23,10 +25,10 @@ void Project::MainMenu()
 		{
 			switch (choice.at(0)) {
 			case '1':
-				MD5_Generating();
+				MD5_Generating();  //change to generate md5 hash interface
 				break;
 			case '2':
-				CrackMenu();
+				CrackMenu();  //change to cracking md5 hash interface
 				continue;
 			case '3':
 				std::cout << "Exiting Program...." << std::endl;
@@ -50,6 +52,8 @@ void Project::pause()
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear stream
 }
 
+
+//change to generate md5 hash interface
 void Project::MD5_Generating()
 {
 	ClearScreen();
@@ -61,16 +65,22 @@ void Project::MD5_Generating()
 	std::cin >> message;
 
 	char str[MD5_STRING_SIZE];
+
 	{
 		md5::md5_t md5;
+
 		md5.process(message.c_str(), message.length());
 		md5.finish();
 		md5.get_string(str);
 	}
 	std::cout << std::endl;
 	std::cout << "MD5 Hash generated from message (" << message << ") :" << std::endl;
-	for (unsigned int i = 0; i < MD5_STRING_SIZE; i++)
-		std::cout << str[i];
+	//for (unsigned int i = 0; i < MD5_STRING_SIZE; i++)
+	//	std::cout << str[i];
+
+	std::cout << str << std::endl;
+
+
 	std::cout << std::endl;
 
 	//// more Operation
@@ -79,6 +89,7 @@ void Project::MD5_Generating()
 
 }
 
+//change to cracking md5 hash interface
 void Project::CrackMenu()
 {
 	bool dLoad = false, dAttack = false;
@@ -91,59 +102,63 @@ void Project::CrackMenu()
 	while (1)
 	{
 		ClearScreen();
-		std::cout << "Operation - Crack MD5 Hash \n";
-		std::cout << std::endl;
-		std::cout << "1) Crack Hash" << std::endl;
-		std::cout << std::endl;
-		std::cout << "2) Load Hash to be Cracked - Currently: [";
+
+		//interface words
 		{
-			if (hLoad)
+			std::cout << "Operation - Crack MD5 Hash \n";
+			std::cout << std::endl;
+			std::cout << "1) Crack Hash" << std::endl;
+			std::cout << std::endl;
+			std::cout << "2) Load Hash to be Cracked - Currently: [";
 			{
-				std::cout << "Loaded]" << std::endl;
-				std::cout << "-> Hash Loaded: [" << hHash << "]" << std::endl;
+				if (hLoad)
+				{
+					std::cout << "Loaded]" << std::endl;
+					std::cout << "-> Hash Loaded: [" << hHash << "]" << std::endl;
+				}
+				else
+					std::cout << "Unloaded]" << std::endl;
 			}
-			else
-				std::cout << "Unloaded]" << std::endl;
-		}
-		if (dAttack)
-		{
-			std::cout << "3) Link Dictionary - Currently: [";
-			if (dLoad)
+			if (dAttack)
 			{
-				std::cout << "Loaded]" << std::endl;
-				std::cout << "-> Dictionary Loaded: [" << _dictionaryLocation << "]" << std::endl;
-				std::cout << "-> " << _dictionarySize << " Messages in Dictionary file!" << std::endl;
-				std::cout << "-> Maximum Message length: " << _dictionaryMaxMsgLength << std::endl;
+				std::cout << "3) Link Dictionary - Currently: [";
+				if (dLoad)
+				{
+					std::cout << "Loaded]" << std::endl;
+          std::cout << "-> Dictionary Loaded: [" << _dictionaryLocation << "]" << std::endl;
+          std::cout << "-> " << _dictionarySize << " Messages in Dictionary file!" << std::endl;
+          std::cout << "-> Maximum Message length: " << _dictionaryMaxMsgLength << std::endl;
+				}
+				else
+					std::cout << "Unloaded]" << std::endl;
 			}
-			else
-				std::cout << "Unloaded]" << std::endl;
-		}
-		std::cout << std::endl;
-		std::cout << "4) Set Cracking method - Currently: [";
-		{
-			switch (cMethod.at(0)) {
-			case '1':
-				std::cout << "Brute Force Attack]" << std::endl;
-				break;
-			case '2':
-				std::cout << "Dictionary Attack]" << std::endl;
-				break;
-			case '3':
-				std::cout << "Brute Force + Dictionary attack]" << std::endl;
-				break;
-			default:
-				break;
+			std::cout << std::endl;
+			std::cout << "4) Set Cracking method - Currently: [";
+			{
+				switch (cMethod.at(0)) {
+				case '1':
+					std::cout << "Brute Force Attack]" << std::endl;
+					break;
+				case '2':
+					std::cout << "Dictionary Attack]" << std::endl;
+					break;
+				case '3':
+					std::cout << "Brute Force + Dictionary attack]" << std::endl;
+					break;
+				default:
+					break;
+				}
 			}
+			if (cMethod.at(0) != '2')
+      {
+        std::cout << "5) Set Brute Force Message Length - Currently: [" << _messageLength.first;
+        std::cout << " ~ " << _messageLength.second << "]" << std::endl;
+      }
+      std::cout << std::endl;
+      std::cout << "6) Back to Menu" << std::endl;
+      std::cout << std::endl;
+      std::cout << "Choose your operation:" << std::endl;
 		}
-		if (cMethod.at(0) != '2')
-		{
-			std::cout << "5) Set Brute Force Message Length - Currently: [" << _messageLength.first;
-			std::cout << " ~ " << _messageLength.second << "]" << std::endl;
-		}
-		std::cout << std::endl;
-		std::cout << "6) Back to Menu" << std::endl;
-		std::cout << std::endl;
-		std::cout << "Choose your operation:" << std::endl;
 
 		std::string choice = "";
 		std::cin >> choice;

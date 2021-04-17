@@ -24,10 +24,10 @@ class Project
 
 	int _argc;
 	char** _argv;
-	std::string _dictionaryLocation;
+	std::string _dictionaryLocation; //dictionary file name
 	unsigned _dictionarySize;
-	unsigned _dictionaryMaxMsgLength;
-	std::pair<unsigned, unsigned> _messageLength;
+	unsigned _dictionaryMaxMsgLength; // maximum message length in dictionary 
+	std::pair<unsigned, unsigned> _messageLength; //minimum length ~ maximum length for Brute Force
 
 public:
 
