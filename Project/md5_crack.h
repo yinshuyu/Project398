@@ -521,46 +521,48 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 			std::cout << ")!" << std::endl;
 		}
 
-
-	}
-
 #ifndef GPU_ONLY
 
 
-	if (!message.compare(result))
-	{
-		std::cout << "GPU and CPU dictionary attack match." << std::endl;
+		if (!message.compare(result))
+		{
+			std::cout << "GPU and CPU dictionary attack match." << std::endl;
 
-	}
-	else
-	{
-		std::cout << "GPU and CPU dictionary attack failed to match!" << std::endl;
-	}
+		}
+		else
+		{
+			std::cout << "GPU and CPU dictionary attack failed to match!" << std::endl;
+		}
 
 #endif 
 
-
-	{
-		printf("Shutting down...\n");
-		//free CPU allocated memory
-		printf("freeing host Data Input for GPU version...\n");
-
-		for (int i = 0; i < 3; i++)
 		{
+			printf("Shutting down...\n");
+			//free CPU allocated memory
+			printf("freeing host Data Input for GPU version...\n");
 
-			//free cuda device allocated memory
-			checkCudaErrors(cudaFree(device_result[i]));
-			checkCudaErrors(cudaFree(device_dictionary_list[i]));
+			for (int i = 0; i < 3; i++)
+			{
 
-			//Free pinned Memory
-			cudaFreeHost(pinnedMemory_dictionary[i]);
-			cudaFreeHost(pinnedMemory_result[i]);
+				//free cuda device allocated memory
+				checkCudaErrors(cudaFree(device_result[i]));
+				checkCudaErrors(cudaFree(device_dictionary_list[i]));
 
-			//destroy streams
-			cudaStreamDestroy(stream[i]);
+				//Free pinned Memory
+				cudaFreeHost(pinnedMemory_dictionary[i]);
+				cudaFreeHost(pinnedMemory_result[i]);
+
+				//destroy streams
+				cudaStreamDestroy(stream[i]);
+			}
+
+			cudaDeviceReset();
 		}
-
-		cudaDeviceReset();
 	}
+
+
+
+
+
 
 }
