@@ -10,7 +10,7 @@ typedef unsigned int uint;
 
 
 __global__ void Kernel_ScanDictionary(
-	char* hash,
+	const char* __restrict__ hash,
 	char * list, 
 	unsigned listSize,
 	char* result, 
@@ -86,8 +86,8 @@ extern "C" void GPUScanDictionary(
 	unsigned listSize,	//size of dictionary
 	unsigned msgMaxLgth, //the max length of a password in the dictionary
 
-	unsigned tileSize 
-	//cudaStream_t stream //stream number
+	unsigned tileSize,
+	cudaStream_t stream //stream number
 )
 {
 	uint block = BLOCK_SIZE;
@@ -97,12 +97,23 @@ extern "C" void GPUScanDictionary(
 	int y_size = ceil((float)listSize / (float)tileSize);
 	dim3 gridDim(ceil((float)(tileSize) / (float)block), ceil((float)(y_size) / (float)block), 1);
 
-	Kernel_ScanDictionary << <gridDim, blockDim /*, 0, stream */>> > (
+	Kernel_ScanDictionary << <gridDim, blockDim , 0, stream>> > (
 		hash,
 		list,
 		listSize,
 		result,
 		msgMaxLgth);
+
+
+	//char hostresult[30];
+
+	//checkCudaErrors(cudaMemcpy(
+	//	hostresult, result,
+	//	msgMaxLgth * sizeof(char), cudaMemcpyDeviceToHost
+	//	));
+
+	//std::cout << hostresult << std::endl;
+
 
 	getLastCudaError("Kernel_ScanDictionary failed\n");
 

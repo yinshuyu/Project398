@@ -14,8 +14,10 @@
 #include <vector>
 #include <limits>
 
+#include <thread> //multithreading
 
-#include "GPUDictionaryAttack.h"
+#include "ThreadDictionaryAttack.h"
+
 #include "GPUBruteForceAttack.h"
 
 //#define DEVPROP
@@ -339,8 +341,9 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 
 
 
+#ifndef GPU_ONLY
 	
-	std::cout << "CPU dictionary attack\n" << std::endl;
+	std::cout << "CPU dictionary attack" << std::endl;
 
 	std::string message = "";
 
@@ -377,38 +380,40 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 		}
 	}
 
-
+#endif
 
 	//cuda dictionary attack
-	std::cout << "\nGPU dictionary attack\n" << std::endl;
+	std::cout << "\nGPU dictionary attack" << std::endl;
 
 	//cuda take in the dictionary list
 	//every single thread hash a single password from the dictionary
 	//after hashing, compares the user input hash with the dictionary hash
 
-	char* result = new char[msgMaxLgth];
+	char* resultArray[3];
+	int * index = new int;
+	*index = -1;
+	char * result = new char[msgMaxLgth];
 	memset(result, 0, msgMaxLgth);
+
+	//memset(result, 0, msgMaxLgth);
 
 	{
 		sdkResetTimer(&hTimer);
 		sdkStartTimer(&hTimer);
 
 		//transfer data from CPU to GPU
-		char* device_result;
-		checkCudaErrors(cudaMalloc((void**)&device_result,
-			msgMaxLgth * sizeof(char)));
-		checkCudaErrors(cudaMemcpy(device_result, result,
-			msgMaxLgth * sizeof(char),
-			cudaMemcpyHostToDevice));
+		cudaStream_t stream[3];
 
+		char* device_result[3];					//device_result
+		char* device_dictionary_list[3]; 		//device dictionary
 
-		char* device_dictionary_list;
-		checkCudaErrors(cudaMalloc((void**)&device_dictionary_list,
-			fileSize * msgMaxLgth * sizeof(char)));
-		checkCudaErrors(cudaMemcpy(device_dictionary_list, dictionaryList,
-			fileSize * msgMaxLgth * sizeof(char),
-			cudaMemcpyHostToDevice));
+		char* pinnedMemory_dictionary[3];
+		char* pinnedMemory_result[3];
 
+		int numberOfStreams = 2;
+		int tileSize = 512;
+
+		//device user input hash
 		char* device_hash;
 		checkCudaErrors(cudaMalloc((void**)&device_hash,
 			MD5_STRING_SIZE * sizeof(char)));
@@ -416,14 +421,75 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 			MD5_STRING_SIZE * sizeof(char),
 			cudaMemcpyHostToDevice));
 
+		for (int i = 0; i < numberOfStreams + 1; i++)
+		{
+			resultArray[i] = new char[msgMaxLgth];
+			memset(resultArray[i], 0, msgMaxLgth);
+
+			//Create 3 streams
+			cudaStreamCreate(&stream[i]);
+
+			checkCudaErrors(cudaMalloc((void**)&device_result[i],
+				msgMaxLgth * sizeof(char)));
+			//transfer nullptr to device memory
+			checkCudaErrors(cudaMemcpy(device_result[i], result,
+				msgMaxLgth * sizeof(char),
+				cudaMemcpyHostToDevice));
+
+			checkCudaErrors(cudaMalloc((void**)&device_dictionary_list[i],
+				tileSize * tileSize * msgMaxLgth * sizeof(char)));
+
+			//Allocate pointers with Pinned Memory for CPU
+			cudaHostAlloc((void**)&pinnedMemory_dictionary[i],
+				tileSize * tileSize * msgMaxLgth * sizeof(char), 
+				cudaHostAllocDefault);
+
+			cudaHostAlloc((void**)&pinnedMemory_result[i],
+				msgMaxLgth * sizeof(char),
+				cudaHostAllocDefault);
+		}
+
 
 		{
-			GPUScanDictionary(device_hash, device_result, device_dictionary_list,
-				fileSize, msgMaxLgth, 512);
+
+			std::thread first(thread1_function,
+
+				msgMaxLgth, //max message length of each dictionary word
+				fileSize, //size of dictionary
+				dictionaryList, //host dictionary memory
+
+				pinnedMemory_dictionary,  //transfer the host dictionary to the pinnedMemory
+
+				numberOfStreams, //0 to 2, 3 streams
+
+				tileSize //default tilesize is 512 
+			);
+
+
+			std::thread second (thread2_function,
+
+				msgMaxLgth, //max message length of each dictionary word
+				fileSize, //size of dictionary
+
+				device_hash,
+				device_result,
+				device_dictionary_list, 
+
+				pinnedMemory_dictionary,  //transfer the host dictionary to the pinnedMemory
+				pinnedMemory_result,
+
+				resultArray, //host memory for result
+				index,
+				stream,
+				numberOfStreams, //0 to 2, 3 streams
+
+				tileSize//default tilesize is 512 
+			);
+
+
+			first.join();
+			second.join();
 		}
-		//transfer result matrix from GPU to CPU
-		checkCudaErrors(cudaMemcpy(result, device_result,
-			msgMaxLgth * sizeof(char), cudaMemcpyDeviceToHost));
 
 
 		sdkStopTimer(&hTimer);
@@ -433,6 +499,15 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 			float AvgSecs = 1.0e-3 * (double)sdkGetTimerValue(&hTimer); //sdkgettimer returns millisecs
 			printf("GPUScanDictionary() time (average): %.5f sec, %.4f MB/sec \n\n",
 				AvgSecs, ((double)(fileSize * msgMaxLgth * sizeof(char)) * 1.0e-6) / AvgSecs);
+		}
+
+		if (*index > -1)
+		{
+			result = resultArray[*index];
+		}
+		else
+		{
+			result = 0;
 		}
 
 		if (result)
@@ -445,8 +520,11 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 			std::cout << "Failed to crack Hash (" << hash;
 			std::cout << ")!" << std::endl;
 		}
+
+
 	}
 
+#ifndef GPU_ONLY
 
 
 	if (!message.compare(result))
@@ -458,4 +536,31 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 	{
 		std::cout << "GPU and CPU dictionary attack failed to match!" << std::endl;
 	}
+
+#endif 
+
+
+	{
+		printf("Shutting down...\n");
+		//free CPU allocated memory
+		printf("freeing host Data Input for GPU version...\n");
+
+		for (int i = 0; i < 3; i++)
+		{
+
+			//free cuda device allocated memory
+			checkCudaErrors(cudaFree(device_result[i]));
+			checkCudaErrors(cudaFree(device_dictionary_list[i]));
+
+			//Free pinned Memory
+			cudaFreeHost(pinnedMemory_dictionary[i]);
+			cudaFreeHost(pinnedMemory_result[i]);
+
+			//destroy streams
+			cudaStreamDestroy(stream[i]);
+		}
+
+		cudaDeviceReset();
+	}
+
 }

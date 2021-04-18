@@ -9,7 +9,7 @@ typedef unsigned int uint;
 
 // n^k possible strings of length k that can be formed from a set of n characters
 __global__ void Kernel_BruteForce(
-	char* hash,
+	const char* __restrict__ hash,
 	char* result,
 	bool* found,
 	unsigned msgLgth,

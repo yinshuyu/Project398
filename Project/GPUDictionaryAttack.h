@@ -2,9 +2,12 @@
 
 
 
+
+
 #ifndef GPU_DICTIONARYATTACK_H
 #define GPU_DICTIONARYATTACK_H
 
+#include "cuda_runtime.h"
 
 //Used in GPU mode
 //Calls kernel function
@@ -16,8 +19,8 @@ extern "C" void GPUScanDictionary(
 	unsigned listSize,	//size of dictionary
 	unsigned msgMaxLgth, //the max length of a password in the dictionary
 
-	unsigned tileSize
-	//cudaStream_t stream //stream number
+	unsigned tileSize, 
+	cudaStream_t stream //stream number
 );
 
 
