@@ -3,15 +3,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
-    <ClCompile Include="md5.cpp">
-      <Filter>md5_algorithm</Filter>
-    </ClCompile>
-    <ClCompile Include="md5_t.cpp">
-      <Filter>md5_algorithm</Filter>
-    </ClCompile>
-    <ClCompile Include="ThreadBruteForceAttack.cpp">
-      <Filter>Different Attack</Filter>
-    </ClCompile>
     <ClCompile Include="ThreadDictionaryAttack.h">
       <Filter>Different Attack</Filter>
     </ClCompile>

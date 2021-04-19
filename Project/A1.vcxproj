@@ -12,10 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="md5.cpp" />
-    <ClCompile Include="md5_t.cpp" />
     <ClCompile Include="Menu.cpp" />
-    <ClCompile Include="ThreadBruteForceAttack.cpp" />
     <ClCompile Include="ThreadDictionaryAttack.h" />
   </ItemGroup>
   <ItemGroup>

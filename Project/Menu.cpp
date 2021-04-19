@@ -1,3 +1,18 @@
+/*Start Header
+******************************************************************/
+/*!
+\file Menu.cpp
+\author	Yin shuyu, yin.s, 1802075
+\par yin.s\@digipen.edu
+\date Apr 19, 2021
+\brief  CS398 Final Project
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+*/
+/* End Header
+*******************************************************************/
+
 #include "Menu.h"
 #include "md5_crack.h"
 #include "clearscreenw.h"
@@ -79,14 +94,7 @@ void Project::MD5_Generating()
 	//	std::cout << str[i];
 
 	std::cout << str << std::endl;
-
-
 	std::cout << std::endl;
-
-	//// more Operation
-
-
-
 }
 
 //change to cracking md5 hash interface

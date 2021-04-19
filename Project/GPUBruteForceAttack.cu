@@ -1,13 +1,26 @@
+/*Start Header
+******************************************************************/
+/*!
+\file GPUBruteForceAttack.cu
+\author	Yin shuyu, yin.s, 1802075
+\par yin.s\@digipen.edu
+\date Apr 19, 2021
+\brief  CS398 Final Project
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+*/
+/* End Header
+*******************************************************************/
+
 // Utility and system includes
 #include <helper_cuda.h>
 #include <math.h>
 #include "md5.h"
 #include "BruteForceAttack_loc.h"
 
-#define BLOCK_SIZE 32
 typedef unsigned int uint;
 
-// n^k possible strings of length k that can be formed from a set of n characters
 __global__ void Kernel_BruteForce(
 	const char* __restrict__ hash,
 	char* result,
@@ -24,6 +37,7 @@ __global__ void Kernel_BruteForce(
 	unsigned col = bx * blockDim.x + tx;
 	unsigned row = by * blockDim.y + ty;
 
+	// thread index -- also the combination's index
 	unsigned index = startIndex + (row * blockDim.x + col);
 
 	if (index < endIndex)
@@ -37,18 +51,18 @@ __global__ void Kernel_BruteForce(
 			//unsigned remainder = 0;
 
 			unsigned i = 0;
-			for (unsigned divisor = endIndex/RANGE_0; i < msgLgth - 1; i++, divisor /= RANGE_0)
+			for (unsigned divisor = endIndex/ RANGE; i < msgLgth - 1; i++, divisor /= RANGE)
 			{
 				quotient = floor((float)(dividend) / (float)divisor);
 				//	remainder = dividend % divisor;
 				dividend %= divisor;
 
-				test[i] = START_0 + quotient;
+				test[i] = START + quotient;
 
 				//	dividend = remainder;
 			}
 
-			test[i] = START_0 + dividend;
+			test[i] = START + dividend;
 
 			
 		}
@@ -94,7 +108,7 @@ __global__ void Kernel_BruteForce(
 }
 
 
-// A function to find the factorial.
+// n^k possible strings of length k that can be formed from a set of n characters
 int possibleAmount(int n, int k)
 {
 	int result = 1;
@@ -115,15 +129,19 @@ extern "C" void GPUBruteForce(
 	unsigned msgMinLgth,	//the min search length
 	unsigned msgMaxLgth,	//the max search length
 
-	unsigned tileSize
+	unsigned tileSize,
+	unsigned blockSize
 )
 {
 	unsigned maxTileSize = tileSize * tileSize;
 	//printf("%d\n\n", maxTileSize);
+	bool hashfound; // use to break when hash in find in one of the kenrel
 
+	// split the all combination in different msg length batch 
 	for (unsigned msgLgth = msgMinLgth; msgLgth <= msgMaxLgth; msgLgth++)
 	{
-		unsigned endIndex = possibleAmount(RANGE_0, msgLgth);
+		// number combination in this ASCII range and msg length
+		unsigned endIndex = possibleAmount(RANGE, msgLgth);
 		//printf("%d\n\n", endIndex);
 
 		for (unsigned startIndex = 0; startIndex < endIndex; startIndex += maxTileSize)
@@ -137,9 +155,9 @@ extern "C" void GPUBruteForce(
 			//printf("%d\n", startIndex);
 			//printf("%d\n", y_size);
 
-			dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE, 1); //32 by 32
+			dim3 blockDim(blockSize, blockSize, 1); //32 by 32
 
-			dim3 gridDim(ceil((float)(tileSize) / (float)BLOCK_SIZE), ceil((float)(y_size) / (float)BLOCK_SIZE), 1);
+			dim3 gridDim(ceil((float)(tileSize) / (float)blockSize), ceil((float)(y_size) / (float)blockSize), 1);
 
 			Kernel_BruteForce << <gridDim, blockDim >> > (
 				hash,
@@ -149,12 +167,15 @@ extern "C" void GPUBruteForce(
 				startIndex,
 				endIndex);
 
+			cudaMemcpy(&hashfound, found, sizeof(bool), cudaMemcpyDeviceToHost);
+
 			getLastCudaError("Kernel_BruteForce failed\n");
 
 			cudaDeviceSynchronize();
 
-			/*if (found)
-				return;*/
+			// stop if hash is found
+			if (hashfound)
+				return;
 		}	
 	}
 }

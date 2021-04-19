@@ -1,3 +1,17 @@
+/*Start Header
+******************************************************************/
+/*!
+\file GPUDictionaryAttack.cu
+\author Luo Yu Xuan, yuxuan.luo, 1802205
+\par yuxuan.luo\@digipen.edu
+\date Apr 19, 2021
+\brief  CS398 Final Project
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+*/
+/* End Header
+*******************************************************************/
 // Utility and system includes
 #include <helper_cuda.h>
 #include "md5.h"
@@ -103,17 +117,6 @@ extern "C" void GPUScanDictionary(
 		listSize,
 		result,
 		msgMaxLgth);
-
-
-	//char hostresult[30];
-
-	//checkCudaErrors(cudaMemcpy(
-	//	hostresult, result,
-	//	msgMaxLgth * sizeof(char), cudaMemcpyDeviceToHost
-	//	));
-
-	//std::cout << hostresult << std::endl;
-
 
 	getLastCudaError("Kernel_ScanDictionary failed\n");
 

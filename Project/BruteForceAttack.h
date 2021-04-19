@@ -1,3 +1,20 @@
+/*Start Header
+******************************************************************/
+/*!
+\file BruteForceAttack.h
+\author	Yin shuyu, yin.s, 1802075
+\co-author Luo Yu Xuan, yuxuan.luo, 1802205
+\par yin.s\@digipen.edu
+\co-par yuxuan.luo\@digipen.edu
+\date Apr 19, 2021
+\brief  CS398 Final Project
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+*/
+/* End Header
+*******************************************************************/
+
 #pragma once
 #include <cstdint>
 #include "md5.h"
@@ -24,14 +41,14 @@ int brute_force_fixed_length(const char* hash, std::string& result,
 	char c;
 
 	if (p < len) {
-		for (c = START_0; c <= END_9; ++c) {
+		for (c = START; c <= END; ++c) {
 			test[p] = c;
 			if (brute_force_fixed_length(hash, result, test, p + 1, len))
 				return 1;
 		}
 	}
 	else { //reached the desired length of permutation
-		for (c = START_0; c <= END_9; ++c) {
+		for (c = START; c <= END; ++c) {
 			test[p] = c;
 
 			//get hash of the string
