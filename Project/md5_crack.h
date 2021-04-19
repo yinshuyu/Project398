@@ -16,25 +16,143 @@
 
 
 #include "GPUDictionaryAttack.h"
+#include "GPUBruteForceAttack.h"
 
 //#define DEVPROP
+//#define GPU_ONLY
 
-void BruteForceAttack(const char* hash, unsigned msgMinLgth, unsigned msgMaxLgth)
+void BruteForceAttack(int argc, char** argv, const char* hash, unsigned msgMinLgth, unsigned msgMaxLgth)
 {
+	StopWatchInterface* hTimer = NULL;
+	sdkCreateTimer(&hTimer); //Timer Creation
+
+	bool PassFailFlag = false;
+	cudaDeviceProp deviceProp;
+	deviceProp.major = 0;
+	deviceProp.minor = 0;
+
+	// set logfile name and start logs
+	printf("[Dictionary Attack] - Starting...\n");
+
+	//Use command-line specified CUDA device, otherwise use device with highest Gflops/s
+	int dev = findCudaDevice(argc, (const char**)argv);
+
+	checkCudaErrors(cudaGetDeviceProperties(&deviceProp, dev));
+
+	printf("CUDA device [%s] has %d Multi-Processors, Compute %d.%d\n",
+		deviceProp.name, deviceProp.multiProcessorCount, deviceProp.major, deviceProp.minor);
+
+#ifndef GPU_ONLY
+
+	std::cout << "CPU Brute Force Attack\n" << std::endl;
+
 	std::string message = "";
 
+	{
+		sdkResetTimer(&hTimer);
+		sdkStartTimer(&hTimer);
 
-	//if bruteforce return true - found password
-	if (brute_force(hash, message, msgMinLgth, msgMaxLgth))
-	{
-		std::cout << "Hash (" << hash;
-		std::cout << ") Cracked: Message (" << message << ")!" << std::endl;
+		//sequential brute force attack
+		{
+			//if bruteforce return true - found password
+			PassFailFlag = brute_force(hash, message, msgMinLgth, msgMaxLgth);
+		}
+
+		sdkStopTimer(&hTimer);
+
+		//Log CPU execution time 
+		{
+			printf("...reading back CPU results\n");
+			float AvgSecs = 1.0e-3 * (double)sdkGetTimerValue(&hTimer); //sdkgettimer returns millisecs
+			printf("CPU_BruteForce() time (average): %.5f sec \n\n", AvgSecs);
+		}
+
+		if (PassFailFlag)  //whether the message is found for the sequential dictionary attack
+		{
+			std::cout << "Hash (" << hash;
+			std::cout << ") Cracked: Message (" << message << ")!" << std::endl;
+		}
+		else
+		{
+			std::cout << "Failed to crack Hash (" << hash;
+			std::cout << ")!" << std::endl;
+		}
 	}
+#endif
+
+	std::cout << "\nGPU brute force attack\n" << std::endl;
+
+	//cuda take in the dictionary list
+	//every single thread hash a single password from the dictionary
+	//after hashing, compares the user input hash with the dictionary hash
+
+	char* result = new char[msgMaxLgth + 1];
+	memset(result, 0, msgMaxLgth + 1);
+
+	bool found = false;
+	{
+		sdkResetTimer(&hTimer);
+		sdkStartTimer(&hTimer);
+
+		//transfer data from CPU to GPU
+		char* device_hash;
+		checkCudaErrors(cudaMalloc((void**)&device_hash, MD5_STRING_SIZE * sizeof(char)));
+		checkCudaErrors(cudaMemcpy(device_hash, hash, MD5_STRING_SIZE * sizeof(char), cudaMemcpyHostToDevice));
+
+		char* device_result;
+		checkCudaErrors(cudaMalloc((void**)&device_result, msgMaxLgth * sizeof(char)));
+		checkCudaErrors(cudaMemcpy(device_result, result, msgMaxLgth * sizeof(char), cudaMemcpyHostToDevice));
+
+		bool* device_found;
+		checkCudaErrors(cudaMalloc((void**)&device_found, sizeof(bool)));
+		checkCudaErrors(cudaMemcpy(device_found, &found, sizeof(bool), cudaMemcpyHostToDevice));
+
+		//cuda brute force attack
+		{
+			GPUBruteForce(device_hash, device_result, device_found, msgMinLgth, msgMaxLgth, 32);
+		}
+
+		//transfer result matrix from GPU to CPU
+		checkCudaErrors(cudaMemcpy(result, device_result, msgMaxLgth * sizeof(char), cudaMemcpyDeviceToHost));
+
+		checkCudaErrors(cudaMemcpy(&found, device_found, sizeof(bool), cudaMemcpyDeviceToHost));
+
+		checkCudaErrors(cudaFree(device_hash));
+		checkCudaErrors(cudaFree(device_result));
+		checkCudaErrors(cudaFree(device_found));
+
+		cudaDeviceReset();
+
+		sdkStopTimer(&hTimer);
+
+		//Log GPU execution time 
+		{
+			printf("...reading back GPU results\n");
+			float AvgSecs = 1.0e-3 * (double)sdkGetTimerValue(&hTimer); //sdkgettimer returns millisecs
+			printf("GPU_BruteForce() time (average): %.5f sec \n\n", AvgSecs);
+		}
+
+		if (found)
+		{
+			std::cout << "Hash (" << hash;
+			std::cout << ") Cracked: Message (" << result << ")!" << std::endl;
+		}
+		else
+		{
+			std::cout << "Failed to crack Hash (" << hash;
+			std::cout << ")!" << std::endl;
+		}
+	}
+
+
+#ifndef GPU_ONLY
+	if (!message.compare(result))
+		std::cout << "GPU and CPU Brute Force attack match." << std::endl;
 	else
-	{
-		std::cout << "Failed to crack Hash (" << hash;
-		std::cout << ")!" << std::endl;
-	}
+		std::cout << "GPU and CPU Brute Force attack failed to match!" << std::endl;
+#endif
+
+	delete[] result;
 }
 
 void DictionaryAttack(int argc, char** argv, const char* hash, std::string filename, unsigned fileSize, unsigned msgMaxLgth)

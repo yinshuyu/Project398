@@ -12,6 +12,9 @@
     <ClCompile Include="ThreadDictionaryAttack.cpp">
       <Filter>Different Attack</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadBruteForceAttack.cpp">
+      <Filter>Different Attack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Menu.h" />
@@ -32,6 +35,15 @@
     <ClInclude Include="GPUDictionaryAttack.h">
       <Filter>Different Attack</Filter>
     </ClInclude>
+    <ClInclude Include="GPUBruteForceAttack.h">
+      <Filter>Different Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="BruteForceAttack_loc.h">
+      <Filter>Different Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="Semaphore.h">
+      <Filter>Different Attack</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
@@ -46,6 +58,9 @@
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="GPUDictionaryAttack.cu">
+      <Filter>Different Attack</Filter>
+    </CudaCompile>
+    <CudaCompile Include="GPUBruteForceAttack.cu">
       <Filter>Different Attack</Filter>
     </CudaCompile>
   </ItemGroup>

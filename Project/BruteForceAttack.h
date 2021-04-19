@@ -1,19 +1,8 @@
 #pragma once
 #include <cstdint>
 #include "md5.h"
+#include "BruteForceAttack_loc.h"
 
-#define START_0   0x30  // 0
-#define END_9     0x39  // 9
-
-#define START_A   0x41  // A
-#define END_Z     0x5A  // Z
-
-#define START_a   0x61  // a
-#define END_z     0x7A  // z
-
-//only this is used
-#define START   0x20  // space
-#define END     0x7E  // ~
 
 typedef unsigned char byte_t;
 
@@ -35,14 +24,14 @@ int brute_force_fixed_length(const char* hash, std::string& result,
 	char c;
 
 	if (p < len) {
-		for (c = START; c <= END; ++c) {
+		for (c = START_0; c <= END_9; ++c) {
 			test[p] = c;
 			if (brute_force_fixed_length(hash, result, test, p + 1, len))
 				return 1;
 		}
 	}
 	else { //reached the desired length of permutation
-		for (c = START; c <= END; ++c) {
+		for (c = START_0; c <= END_9; ++c) {
 			test[p] = c;
 
 			//get hash of the string

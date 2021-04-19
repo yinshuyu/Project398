@@ -1,6 +1,3 @@
-
-
-
 // Utility and system includes
 #include <helper_cuda.h>
 #include "md5.h"

@@ -15,22 +15,27 @@
     <ClCompile Include="md5.cpp" />
     <ClCompile Include="md5_t.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="ThreadBruteForceAttack.cpp" />
     <ClCompile Include="ThreadDictionaryAttack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BruteForceAttack.h" />
+    <ClInclude Include="BruteForceAttack_loc.h" />
     <ClInclude Include="clearscreenw.h" />
     <ClInclude Include="DictionaryAttack.h" />
+    <ClInclude Include="GPUBruteForceAttack.h" />
     <ClInclude Include="GPUDictionaryAttack.h" />
     <ClInclude Include="md5.h" />
     <ClInclude Include="md5_crack.h" />
     <ClInclude Include="md5_loc.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="Semaphore.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="GPUBruteForceAttack.cu" />
     <CudaCompile Include="GPUDictionaryAttack.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
