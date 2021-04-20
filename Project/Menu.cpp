@@ -158,14 +158,40 @@ void Project::CrackMenu()
 				}
 			}
 			if (cMethod.at(0) != '2')
-      {
-        std::cout << "5) Set Brute Force Message Length - Currently: [" << _messageLength.first;
-        std::cout << " ~ " << _messageLength.second << "]" << std::endl;
-      }
-      std::cout << std::endl;
-      std::cout << "6) Back to Menu" << std::endl;
-      std::cout << std::endl;
-      std::cout << "Choose your operation:" << std::endl;
+			{
+				std::cout << "5) Set Brute Force Message Length - Currently: [" << _messageLength.first;
+				std::cout << " ~ " << _messageLength.second << "]" << std::endl;
+			}
+
+			std::cout << std::endl;
+			// set program mode and GPU cuda block and tile size
+			{
+				std::cout << "6) Set Exection Mode - Currently: [";
+				switch (_mode) {
+				case 0:
+					std::cout << "CPU & GPU]" << std::endl;
+					break;
+				case 1:
+					std::cout << "GPU]" << std::endl;
+					break;
+				case 2:
+					std::cout << "CPU]" << std::endl;
+					break;
+				default:
+					break;
+				}
+				std::cout << "7) Set GPU Block Size - Currently: [";
+				std::cout << _blockSize << "]" << std::endl;
+
+				std::cout << "8) Set GPU Tile Size - Currently: [";
+				std::cout << _tileSize << "]" << std::endl;
+
+			}
+
+			std::cout << std::endl;
+			std::cout << "9) Back to Menu" << std::endl;
+			std::cout << std::endl;
+			std::cout << "Choose your operation:" << std::endl;
 		}
 
 		std::string choice = "";
@@ -202,7 +228,17 @@ void Project::CrackMenu()
 				else
 					std::cout << "Your MD5 Hash is not loaded!" << std::endl;
 				break;
+
 			case '6':
+				ModeSetting();
+				break;
+			case '7':
+				BlockSizeSetting();
+				break;
+			case '8':
+				TileSizeSetting();
+				break;
+			case '9':
 				std::cout << "Returning to Menu...." << std::endl;
 				pause();
 				return;
@@ -234,14 +270,14 @@ void Project::MD5_Cracking(std::string hash, std::string cMethod)
 
 	switch (cMethod.at(0)) {
 	case '1':
-		BruteForceAttack(_argc, _argv, hash.c_str(), _messageLength.first, _messageLength.second);
+		BruteForceAttack(_argc, _argv, hash.c_str(), _messageLength.first, _messageLength.second, _mode,_blockSize,_tileSize);
 		break;
 	case '2':
-			DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength);
+			DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength, _mode, _blockSize, _tileSize);
 		break;
 	case '3':
-		DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength);
-		BruteForceAttack(_argc, _argv, hash.c_str(), _messageLength.first, _messageLength.second);
+		DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength, _mode, _blockSize, _tileSize);
+		BruteForceAttack(_argc, _argv, hash.c_str(), _messageLength.first, _messageLength.second, _mode, _blockSize, _tileSize);
 		break;
 	default:
 		break;
@@ -371,4 +407,89 @@ void Project::MessageSetting()
 	std::cout << "Operation Done! \n";
 	std::cout << "Message Minimum Length :" << _messageLength.first << std::endl;
 	std::cout << "Message Maximum Length :" << _messageLength.second << std::endl;
+}
+
+
+void Project::ModeSetting()
+{
+	ClearScreen();
+	std::cout << "Operation - Set Execution Mode \n";
+	std::cout << std::endl;
+	std::cout << "0) Execute in CPU & GPU \n";
+	std::cout << "1) Execute in GPU \n";
+	std::cout << "2) Execute in CPU \n";
+	unsigned length = 0;
+
+	while (1)
+	{
+		std::cout << std::endl;
+		std::cout << "Enter Execution Mode Choice :" << std::endl;
+		std::cin >> length;
+
+		if (length > 2)
+		{
+			std::cout << "Invalid Choice...." << std::endl;
+			continue;
+		}
+
+		_mode = length;
+		break;
+	}
+
+	std::cout << std::endl;
+	std::cout << "Operation Done! \n";
+}
+
+void Project::BlockSizeSetting()
+{
+	ClearScreen();
+	std::cout << "Operation - Set Block Size\n";
+	std::cout << std::endl;
+	std::cout << "Only Block size 32, 16, 8 is vaild. \n";
+	unsigned length = 0;
+
+	while (1)
+	{
+		std::cout << std::endl;
+		std::cout << "Enter Block Size :" << std::endl;
+		std::cin >> length;
+
+		if (length == 32 || length == 16 || length == 8)
+		{
+			_blockSize = length;
+			break;
+		}
+
+		std::cout << "Invalid Block Size...." << std::endl;
+	}
+
+	std::cout << std::endl;
+	std::cout << "Operation Done! \n";
+}
+
+void Project::TileSizeSetting()
+{
+	ClearScreen();
+	std::cout << "Operation - Set Tile Size\n";
+	std::cout << std::endl;
+	std::cout << "Only Tile size 512, 256, 128 is vaild. \n";
+	unsigned length = 0;
+
+	while (1)
+	{
+		std::cout << std::endl;
+		std::cout << "Enter Tile Size :" << std::endl;
+		std::cin >> length;
+
+		if (length == 512 || length == 256 || length == 128)
+		{
+			_tileSize = length;
+			break;
+		}
+
+		std::cout << "Invalid Tile Size...." << std::endl;
+	}
+
+	std::cout << std::endl;
+	std::cout << "Operation Done! \n";
 }

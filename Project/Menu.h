@@ -37,12 +37,20 @@ class Project
 
 	void MessageSetting();
 
+	void ModeSetting();
+	void BlockSizeSetting();
+	void TileSizeSetting();
+
+
 	int _argc;
 	char** _argv;
 	std::string _dictionaryLocation; //dictionary file name
 	unsigned _dictionarySize;
 	unsigned _dictionaryMaxMsgLength; // maximum message length in dictionary 
 	std::pair<unsigned, unsigned> _messageLength; //minimum length ~ maximum length for Brute Force
+	unsigned _blockSize;
+	unsigned _tileSize;
+	unsigned _mode;
 
 public:
 
@@ -51,7 +59,10 @@ public:
 		_argv(argv),
 		_dictionaryLocation(),
 		_dictionarySize(0),
-		_messageLength({ 1,3 })
+		_messageLength({ 1,3 }),
+		_blockSize{32},
+		_tileSize{512},
+		_mode{0}
 	{}
 
 	~Project() {}
