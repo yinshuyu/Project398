@@ -114,7 +114,8 @@ static void thread2_function(
 	int numOfStreams, //0 to 2, 3 streams
 
 	int tileSize//default tilesize is 512
-	, bool * deviceresultfound
+	, bool * deviceresultfound, 
+	unsigned int blockSize
 	) //default number of streams is 3 streams
 {
 
@@ -152,7 +153,8 @@ static void thread2_function(
 			size, 
 			msgMaxLgth, 
 			tileSize, 
-			stream[stream_id], deviceresultfound);
+			stream[stream_id], deviceresultfound, 
+			blockSize);
 
 
 		checkCudaErrors(cudaMemcpyAsync(

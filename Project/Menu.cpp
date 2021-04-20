@@ -186,6 +186,9 @@ void Project::CrackMenu()
 				std::cout << "8) Set GPU Tile Size - Currently: [";
 				std::cout << _tileSize << "]" << std::endl;
 
+				std::cout << "9) Set Number of Streams - Currently: [";
+				std::cout << numberOfStreams << "]" << std::endl;
+
 			}
 
 			std::cout << std::endl;
@@ -273,10 +276,12 @@ void Project::MD5_Cracking(std::string hash, std::string cMethod)
 		BruteForceAttack(_argc, _argv, hash.c_str(), _messageLength.first, _messageLength.second, _mode,_blockSize,_tileSize);
 		break;
 	case '2':
-			DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength, _mode, _blockSize, _tileSize);
+			DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, 
+				_dictionaryMaxMsgLength, _mode, _blockSize, _tileSize, numberOfStreams);
 		break;
 	case '3':
-		DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength, _mode, _blockSize, _tileSize);
+		DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, 
+			_dictionaryMaxMsgLength, _mode, _blockSize, _tileSize, numberOfStreams);
 		BruteForceAttack(_argc, _argv, hash.c_str(), _messageLength.first, _messageLength.second, _mode, _blockSize, _tileSize);
 		break;
 	default:
