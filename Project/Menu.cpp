@@ -192,7 +192,7 @@ void Project::CrackMenu()
 			}
 
 			std::cout << std::endl;
-			std::cout << "10) Back to Menu" << std::endl;
+			std::cout << "a) Back to Menu" << std::endl;
 			std::cout << std::endl;
 			std::cout << "Choose your operation:" << std::endl;
 		}
@@ -244,7 +244,7 @@ void Project::CrackMenu()
 			case '9':
 				StreamSizeSetting();
 				break;
-			case '10':
+			case 'a':
 				std::cout << "Returning to Menu...." << std::endl;
 				pause();
 				return;

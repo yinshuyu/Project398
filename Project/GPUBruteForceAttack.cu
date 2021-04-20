@@ -30,15 +30,12 @@ __global__ void Kernel_BruteForce(
 	unsigned endIndex
 )
 {
-	unsigned bx = blockIdx.x;
-	unsigned by = blockIdx.y;
-	unsigned tx = threadIdx.x;
-	unsigned ty = threadIdx.y;
-	unsigned col = bx * blockDim.x + tx;
-	unsigned row = by * blockDim.y + ty;
+	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
+	int threadId = blockId * (blockDim.x * blockDim.y)
+		+ (threadIdx.y * blockDim.x) + threadIdx.x;
 
 	// thread index -- also the combination's index
-	unsigned index = startIndex + (row * blockDim.x + col);
+	unsigned index = startIndex + threadId;
 
 	if (index < endIndex)
 	{
