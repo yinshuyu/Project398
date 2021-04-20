@@ -105,10 +105,11 @@ extern "C" void GPUScanDictionary(
 
 	unsigned tileSize,
 	cudaStream_t stream, //stream number, 
-	bool * resultfound
+	bool * resultfound, 
+	unsigned int blockSize
 )
 {
-	uint block = BLOCK_SIZE;
+	uint block = blockSize;
 
 	dim3 blockDim(block, block, 1); //32 by 32
 

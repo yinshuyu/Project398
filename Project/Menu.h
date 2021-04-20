@@ -51,6 +51,7 @@ class Project
 	unsigned _blockSize;
 	unsigned _tileSize;
 	unsigned _mode;
+	unsigned numberOfStreams{3};
 
 public:
 
