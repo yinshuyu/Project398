@@ -28,7 +28,9 @@ __global__ void Kernel_ScanDictionary(
 	char * list, 
 	unsigned listSize,
 	char* result, 
-	unsigned msgMaxLgth)
+	unsigned msgMaxLgth,
+	bool * resultfound
+)
 {
 
 	int bx = blockIdx.x;
@@ -77,6 +79,7 @@ __global__ void Kernel_ScanDictionary(
 
 			//memcpy(result, &(list[size * msgMaxLgth]), length);
 
+			*resultfound = true;
 			for (int i = 0; i < length; i++)
 			{
 				result[i] = list[size * msgMaxLgth + i];
@@ -101,7 +104,8 @@ extern "C" void GPUScanDictionary(
 	unsigned msgMaxLgth, //the max length of a password in the dictionary
 
 	unsigned tileSize,
-	cudaStream_t stream //stream number
+	cudaStream_t stream, //stream number, 
+	bool * resultfound
 )
 {
 	uint block = BLOCK_SIZE;
@@ -116,7 +120,7 @@ extern "C" void GPUScanDictionary(
 		list,
 		listSize,
 		result,
-		msgMaxLgth);
+		msgMaxLgth, resultfound);
 
 	getLastCudaError("Kernel_ScanDictionary failed\n");
 

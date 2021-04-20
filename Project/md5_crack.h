@@ -37,7 +37,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include "GPUBruteForceAttack.h"
 
 //#define DEVPROP
-//#define GPU_ONLY
+#define GPU_ONLY
 
 void BruteForceAttack(int argc, char** argv, const char* hash, unsigned msgMinLgth, unsigned msgMaxLgth)
 {
@@ -380,7 +380,7 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 		{
 			printf("...reading back GPU results\n");
 			float AvgSecs = 1.0e-3 * (double)sdkGetTimerValue(&hTimer); //sdkgettimer returns millisecs
-			printf("CPU_ScanDictionary() time (average): %.5f sec, %.4f MB/sec \n\n",
+			printf("CPU_ScanDictionary() time (average): %.5f sec, %.4f MB/sec \n",
 				AvgSecs, ((double)(fileSize * msgMaxLgth * sizeof(char)) * 1.0e-6) / AvgSecs);
 		}
 
@@ -426,7 +426,17 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 		char* pinnedMemory_dictionary[3];
 		char* pinnedMemory_result[3];
 
-		int numberOfStreams = 2;
+
+		static bool resultFound[1];
+		*resultFound = false;
+		bool* deviceresultfound;
+		checkCudaErrors(cudaMalloc((void**)&deviceresultfound,
+			sizeof(bool)));
+		checkCudaErrors(cudaMemcpy(deviceresultfound, resultFound,
+			sizeof(bool),
+			cudaMemcpyHostToDevice));
+
+		int numberOfStreams = 1;
 		int tileSize = 512;
 
 		//device user input hash
@@ -465,8 +475,20 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 				cudaHostAllocDefault);
 		}
 
+		sdkStopTimer(&hTimer);
+		//Log GPU execution time 
+		{
+			float AvgSecs = 1.0e-3 * (double)sdkGetTimerValue(&hTimer); //sdkgettimer returns millisecs
+			printf("GPU Memory Allocation Time time (average): %.5f sec\n",
+				AvgSecs);
+		}
+
+
 
 		{
+
+			sdkResetTimer(&hTimer);
+			sdkStartTimer(&hTimer);
 
 			std::thread first(thread1_function,
 
@@ -499,23 +521,25 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 				stream,
 				numberOfStreams, //0 to 2, 3 streams
 
-				tileSize//default tilesize is 512 
+				tileSize, //default tilesize is 512 , 
+				deviceresultfound
+
 			);
 
 
 			first.join();
 			second.join();
+
+			sdkStopTimer(&hTimer);
+			//Log GPU execution time 
+			{
+				printf("...reading back GPU results\n");
+				float AvgSecs = 1.0e-3 * (double)sdkGetTimerValue(&hTimer); //sdkgettimer returns millisecs
+				printf("GPU Execution Time: GPUScanDictionary() time (average): %.5f sec, %.4f MB/sec \n",
+					AvgSecs, ((double)(fileSize * msgMaxLgth * sizeof(char)) * 1.0e-6) / AvgSecs);
+			}
 		}
 
-
-		sdkStopTimer(&hTimer);
-		//Log GPU execution time 
-		{
-			printf("...reading back GPU results\n");
-			float AvgSecs = 1.0e-3 * (double)sdkGetTimerValue(&hTimer); //sdkgettimer returns millisecs
-			printf("GPUScanDictionary() time (average): %.5f sec, %.4f MB/sec \n\n",
-				AvgSecs, ((double)(fileSize * msgMaxLgth * sizeof(char)) * 1.0e-6) / AvgSecs);
-		}
 
 		if (*index > -1)
 		{
@@ -529,7 +553,7 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 		if (result)
 		{
 			std::cout << "Hash (" << hash;
-			std::cout << ") Cracked: Message (" << result << ")!" << std::endl;
+			std::cout << ") Cracked: Message (" << result << ")!\n" << std::endl;
 		}
 		else
 		{
@@ -554,10 +578,12 @@ void DictionaryAttack(int argc, char** argv, const char* hash, std::string filen
 
 		{
 			printf("Shutting down...\n");
+			FreeDictionaryMemory(dictionaryList);
+
 			//free CPU allocated memory
 			printf("freeing host Data Input for GPU version...\n");
 
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < numberOfStreams + 1; i++)
 			{
 
 				//free cuda device allocated memory

@@ -30,7 +30,8 @@ extern "C" void GPUScanDictionary(
 	unsigned msgMaxLgth, //the max length of a password in the dictionary
 
 	unsigned tileSize, 
-	cudaStream_t stream //stream number
+	cudaStream_t stream, //stream number, 
+	bool * resultfound
 );
 
 

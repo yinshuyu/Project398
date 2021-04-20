@@ -237,7 +237,7 @@ void Project::MD5_Cracking(std::string hash, std::string cMethod)
 		BruteForceAttack(_argc, _argv, hash.c_str(), _messageLength.first, _messageLength.second);
 		break;
 	case '2':
-		DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength);
+			DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength);
 		break;
 	case '3':
 		DictionaryAttack(_argc, _argv, hash.c_str(), _dictionaryLocation, _dictionarySize, _dictionaryMaxMsgLength);
