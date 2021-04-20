@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="ThreadDictionaryAttack.h">
+      <Filter>Different Attack</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Menu.h" />
+    <ClInclude Include="clearscreenw.h" />
+    <ClInclude Include="md5_crack.h" />
+    <ClInclude Include="md5.h">
+      <Filter>md5_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="md5_loc.h">
+      <Filter>md5_algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="BruteForceAttack.h">
+      <Filter>Different Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="DictionaryAttack.h">
+      <Filter>Different Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="GPUDictionaryAttack.h">
+      <Filter>Different Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="GPUBruteForceAttack.h">
+      <Filter>Different Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="BruteForceAttack_loc.h">
+      <Filter>Different Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="Semaphore.h">
+      <Filter>Different Attack</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="md5_algorithm">
+      <UniqueIdentifier>{87f17a71-59ca-4753-806c-9f08583c405a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Different Attack">
+      <UniqueIdentifier>{391c3592-1bd8-461e-9117-7c33c0354083}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="GPUDictionaryAttack.cu">
+      <Filter>Different Attack</Filter>
+    </CudaCompile>
+    <CudaCompile Include="GPUBruteForceAttack.cu">
+      <Filter>Different Attack</Filter>
+    </CudaCompile>
+  </ItemGroup>
+</Project>
