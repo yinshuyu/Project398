@@ -40,6 +40,8 @@ class Project
 	void ModeSetting();
 	void BlockSizeSetting();
 	void TileSizeSetting();
+	void StreamSizeSetting();
+
 
 
 	int _argc;

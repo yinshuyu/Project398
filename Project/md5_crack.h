@@ -325,7 +325,7 @@ void DictionaryAttack(int argc, char** argv, const char* hash,
 	}
 
 
-	char* resultArray[3];
+	char* resultArray[5];
 	int* index = new int;
 	*index = -1;
 	char* result = new char[msgMaxLgth];
@@ -345,13 +345,13 @@ void DictionaryAttack(int argc, char** argv, const char* hash,
 			sdkStartTimer(&hTimer);
 
 			//transfer data from CPU to GPU
-			cudaStream_t stream[3];
+			cudaStream_t stream[5];
 
-			char* device_result[3];					//device_result
-			char* device_dictionary_list[3]; 		//device dictionary
+			char* device_result[5];					//device_result
+			char* device_dictionary_list[5]; 		//device dictionary
 
-			char* pinnedMemory_dictionary[3];
-			char* pinnedMemory_result[3];
+			char* pinnedMemory_dictionary[5];
+			char* pinnedMemory_result[5];
 
 
 			static bool resultFound[1];

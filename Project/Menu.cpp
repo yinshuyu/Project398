@@ -192,7 +192,7 @@ void Project::CrackMenu()
 			}
 
 			std::cout << std::endl;
-			std::cout << "9) Back to Menu" << std::endl;
+			std::cout << "10) Back to Menu" << std::endl;
 			std::cout << std::endl;
 			std::cout << "Choose your operation:" << std::endl;
 		}
@@ -242,6 +242,9 @@ void Project::CrackMenu()
 				TileSizeSetting();
 				break;
 			case '9':
+				StreamSizeSetting();
+				break;
+			case '10':
 				std::cout << "Returning to Menu...." << std::endl;
 				pause();
 				return;
@@ -493,6 +496,31 @@ void Project::TileSizeSetting()
 		}
 
 		std::cout << "Invalid Tile Size...." << std::endl;
+	}
+
+	std::cout << std::endl;
+	std::cout << "Operation Done! \n";
+}
+
+
+void Project::StreamSizeSetting()
+{
+	ClearScreen();
+	std::cout << "Operation - Set Stream Size\n";
+	std::cout << std::endl;
+	//std::cout << "Only Tile size 512, 256, 128 is vaild. \n";
+	unsigned length = 0;
+
+	while (1)
+	{
+		std::cout << std::endl;
+		std::cout << "Enter Stream Size :" << std::endl;
+		std::cin >> length;
+
+		numberOfStreams = length;
+		break;
+
+		//std::cout << "Invalid Tile Size...." << std::endl;
 	}
 
 	std::cout << std::endl;

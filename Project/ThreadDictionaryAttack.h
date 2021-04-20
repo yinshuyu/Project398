@@ -24,7 +24,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 typedef unsigned int uint;
 
 //3 semaphores for each thread
-static Semaphore semaphores[2][3];
+static Semaphore semaphores[2][10];
 
 //std::mutex result_mutex;
 static bool * resultFound = new bool;
@@ -37,7 +37,7 @@ static void thread1_function(
 	unsigned int dictionary_size, //size of dictionary
 	char* dictionary_list, //host dictionary memory
 
-	char* pinnedMemory_dictionary[3],  //transfer the host dictionary to the pinnedMemory
+	char* pinnedMemory_dictionary[5],  //transfer the host dictionary to the pinnedMemory
 
 	int numOfStreams, //0 to 2, 3 streams
 
@@ -46,9 +46,9 @@ static void thread1_function(
 	*resultFound = false;
 
 	int stream_id = 0;
-	bool init_once_stream[3];
+	bool init_once_stream[5];
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 5; i++)
 		init_once_stream[i] = true;
 
 
@@ -102,15 +102,15 @@ static void thread2_function(
 	unsigned int dictionary_size, //size of dictionary
 
 	char* device_hash,
-	char* device_result[3],
-	char* device_dictionary[3], 
+	char* device_result[5],
+	char* device_dictionary[5], 
 
-	char* pinnedMemory_dictionary[3],  //transfer the host dictionary to the pinnedMemory
-	char* pinnedMemory_result[3],
+	char* pinnedMemory_dictionary[5],  //transfer the host dictionary to the pinnedMemory
+	char* pinnedMemory_result[5],
 	
-	char* final_result[3], //host memory for result
+	char* final_result[5], //host memory for result
 	int * index,
-	cudaStream_t stream[3],
+	cudaStream_t stream[5],
 	int numOfStreams, //0 to 2, 3 streams
 
 	int tileSize//default tilesize is 512
